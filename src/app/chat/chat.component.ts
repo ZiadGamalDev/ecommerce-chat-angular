@@ -147,11 +147,10 @@ export class ChatComponent {
     }, 100);
   }
   
-  // مثال لاستقبال رسالة من السيرفر
   receiveMessage(text: string) {
     this.messages.update((msgs) => [
       ...msgs,
-      { text: text, sender: 'agent' } // الرسائل المستلمة من الـ Agent
+      { text: text, sender: 'agent' }
     ]);
   }
 }

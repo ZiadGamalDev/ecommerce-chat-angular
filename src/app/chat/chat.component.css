@@ -194,11 +194,11 @@
 }
 
 .right {
-  justify-content: flex-end; /* رسائل المستخدم تظهر على اليمين */
+  justify-content: flex-end;
 }
 
 .left {
-  justify-content: flex-start; /* رسائل العميل تظهر على اليسار */
+  justify-content: flex-start;
 }
 
 .message {

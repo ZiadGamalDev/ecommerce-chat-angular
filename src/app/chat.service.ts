@@ -90,15 +90,12 @@ export class ChatService {
 
   constructor() {
     this.socket = io('http://localhost:5000');
-    // this.listenForMessages(); // معطل لاختبار البيانات الثابتة
-    // this.checkAgents(); // معطل لاختبار البيانات الثابتة
   }
 
   setCustomerId(id: string) {
     this.customerId = id;
   }
 
-  // استقبال الرسائل من السيرفر
   private listenForMessages() {
     this.socket.on('receiveMessage', (msg) => {
       if (msg.customerId === this.customerId) {
@@ -114,7 +111,6 @@ export class ChatService {
     });
   }
 
-  // التأكد من توفر العملاء
   private checkAgents() {
     this.socket.emit('checkAgents');
     this.socket.on('agentsAvailable', (availableAgents) => {
@@ -122,19 +118,16 @@ export class ChatService {
     });
   }
 
-  // إرسال رسالة إلى السيرفر
   sendMessage(message: string) {
     if (message.trim() && this.customerId) {
       const msg = { text: message, sender: 'customer', customerId: this.customerId };
-      // this.socket.emit('sendMessage', msg); // معطل لاختبار البيانات الثابتة
       this.messages$.next([...this.messages$.getValue(), msg]);
     }
   }
 
-  // إعلام السيرفر بأن المستخدم يكتب
   notifyTyping() {
     if (this.customerId) {
-      // this.socket.emit('typing', { customerId: this.customerId }); // معطل لاختبار البيانات الثابتة
+      // this.socket.emit('typing', { customerId: this.customerId }); 
     }
   }
 
