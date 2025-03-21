@@ -1,25 +1,27 @@
-<!-- <div class="chat-container">
-  <div *ngIf="!isAgentAvailable" class="agent-check">
-    <span>Checking for available agents...</span>
-  </div>
-
-  <div *ngIf="isAgentAvailable" class="chat-window">
+<div class="chat-container">
+  <div class="chat-window">
     <div class="chat-header">
       <fa-icon *ngIf="!agent?.avatar" [icon]="faUser" size="2x"></fa-icon>
-      <h2>{{ agent?.name }}</h2>
+      <h2>{{ agent?.name || "Chat Support" }}</h2>
+      <button class="logout-btn" (click)="logout()">Logout</button>
     </div>
 
-    <div class="chat-body">
+    <div class="chat-body" #chatBody>
       <div class="messages">
         <div
           *ngFor="let msg of messages"
           class="message-container"
           [ngClass]="{
-            'right': msg.sender === 'customer',
-            'left': msg.sender === 'agent'
+            right: msg.sender === 'customer',
+            left: msg.sender === 'agent'
           }"
         >
-          <div class="message">{{ msg.text }}</div>
+          <div class="message">
+            <span class="message-text">{{ msg.text }}</span>
+            <span class="timestamp" *ngIf="msg.timestamp">{{
+              msg.timestamp | date: "shortTime"
+            }}</span>
+          </div>
         </div>
       </div>
 
@@ -30,16 +32,18 @@
       <input
         [(ngModel)]="message"
         (keydown.enter)="sendMessage()"
+        (input)="onTyping()"
         placeholder="Type a message..."
       />
-      <button (click)="sendMessage()">
+      <button (click)="sendMessage()" [disabled]="!message.trim()">
         <fa-icon [icon]="faSend"></fa-icon>
       </button>
     </div>
   </div>
-</div> -->
+</div>
 
 
+<!-- 
 <div class="chat-container">
   <div *ngIf="!agent(); else chatWindow" class="agent-check">
     <span>Checking for available agents...</span>
@@ -83,4 +87,4 @@
       </button>
     </div>
   </ng-template>
-</div>
+</div> -->
