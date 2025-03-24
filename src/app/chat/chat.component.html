@@ -1,8 +1,11 @@
 <div class="chat-container">
   <div class="chat-window">
     <div class="chat-header">
-      <fa-icon *ngIf="!agent?.avatar" [icon]="faUser" size="2x"></fa-icon>
-      <h2>{{ agent?.name || "Chat Support" }}</h2>
+      <img src="/logo.png" alt="" />
+      <div style="display: flex; align-items: center; gap: 7px;">
+        <fa-icon *ngIf="!agent?.avatar" [icon]="faUser" size="2x"></fa-icon>
+        <h2>{{ agent?.name || "Chat Support" }}</h2>
+      </div>
     </div>
 
     <div class="chat-body" #chatBody>
@@ -18,7 +21,7 @@
           <div class="message">
             <span class="message-text">{{ msg.text }}</span>
             <span class="timestamp" *ngIf="msg.timestamp">{{
-              msg.timestamp | date: "shortTime"
+              msg.timestamp | date : "shortTime"
             }}</span>
           </div>
         </div>
@@ -40,7 +43,6 @@
     </div>
   </div>
 </div>
-
 
 <!-- 
 <div class="chat-container">

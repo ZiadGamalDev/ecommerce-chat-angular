@@ -13,10 +13,10 @@
 .chat-header {
   display: flex;
   align-items: center;
-  background: #f04706;
+  background: #ff6900;
   color: white;
   padding: 15px;
-  gap: 10px;
+  gap: 30px;
 }
 
 .chat-body {
