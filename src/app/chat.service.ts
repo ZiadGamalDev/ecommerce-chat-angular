@@ -22,12 +22,6 @@ export class ChatService {
     this.listenForMessages();
   }
 
-  // حذف setCustomerId لأننا بنستخدم localStorage دلوقتي
-  // setCustomerId(id: string) {
-  //   this.customerId = id;
-  //   this.socket.emit('join', { customerId: id });
-  // }
-
   private listenForMessages() {
     this.socket.on('connect', () => {
       console.log('Connected to socket server');

@@ -13,14 +13,12 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { faPaperPlane, faUserCircle } from '@fortawesome/free-solid-svg-icons';
-import { AuthService } from '../core/auth.service';
 import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-chat',
   standalone: true,
   imports: [CommonModule, FormsModule, FontAwesomeModule],
-  providers: [AuthService],
   templateUrl: './chat.component.html',
   styleUrls: ['./chat.component.css'],
 })
@@ -39,13 +37,8 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
   constructor(
     private chatService: ChatService,
     private route: ActivatedRoute,
-    private authService: AuthService,
     private router: Router
   ) {}
-
-  logout() {
-    this.authService.logout();
-  }
 
   ngOnInit() {
     const customerId = localStorage.getItem('userId');
