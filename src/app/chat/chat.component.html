@@ -15,9 +15,9 @@
       <div *ngIf="!isLoading" class="messages">
         @if (messages.length > 0) {
         <div *ngFor="let msg of messages" class="message-container" [ngClass]="{
-            right: msg.sender === 'customer',
-            left: msg.sender === 'agent'
-          }">
+          'right': msg.senderId === userId,
+          'left': msg.receiverId === userId
+        }">
           <div class="message">
             <span class="message-text">{{ msg?.text?.content }}</span>
             <span class="message-text">{{ msg?.content }}</span>

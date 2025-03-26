@@ -36,6 +36,7 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
   agent: any = null;
   isTyping: boolean = false;
   isLoading: boolean = true;
+  userId: string | null = null; 
   private subscription = new Subscription();
 
   @ViewChild('chatBody') chatBody!: ElementRef;
@@ -51,6 +52,9 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
   ) {}
 
   ngOnInit() {
+    this.userId = localStorage.getItem('userId');
+    console.log("Retrieved userId:", this.userId);
+    
     const chatId = localStorage.getItem('chatID'); 
 
     if (!chatId) {
