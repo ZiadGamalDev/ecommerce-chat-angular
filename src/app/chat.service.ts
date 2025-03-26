@@ -28,7 +28,7 @@ export class ChatService {
       console.log('token:', queryParams.get('token'));
     });
 
-    this.socket = io('http://localhost:3000', {
+    this.socket = io('https://customer-support-rose.vercel.app', {
       autoConnect: true,
       transports: ['websocket', 'polling'],
     });
@@ -47,7 +47,7 @@ export class ChatService {
   }
 
   getMessagesFromBE(chatId: string): void {
-    const url = `http://localhost:3000/messages/${chatId}`;
+    const url = `https://customer-support-rose.vercel.app/messages/${chatId}`;
   
     this.http.get<Message[]>(url).subscribe(
       (messages) => {
