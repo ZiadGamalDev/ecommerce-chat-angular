@@ -15,6 +15,13 @@ import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { faPaperPlane, faUserCircle } from '@fortawesome/free-solid-svg-icons';
 import { Router } from '@angular/router';
 
+interface Message {
+  text: string;
+  sender: 'customer' | 'agent';
+  chatId: string;
+  timestamp?: Date;
+}
+
 @Component({
   selector: 'app-chat',
   standalone: true,
@@ -23,10 +30,11 @@ import { Router } from '@angular/router';
   styleUrls: ['./chat.component.css'],
 })
 export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
-  messages: any[] = [];
+  messages: Message[] = [];
   message: string = '';
   agent: any = null;
   isTyping: boolean = false;
+  isLoading: boolean = true;
   private subscription = new Subscription();
 
   @ViewChild('chatBody') chatBody!: ElementRef;
@@ -41,17 +49,26 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
   ) {}
 
   ngOnInit() {
-    const customerId = localStorage.getItem('userId');
+    const chatId = localStorage.getItem('chatID');
     
-    if (!customerId) {
-      console.warn('No customerId founded');
-      this.router.navigate(['/']);
+    if (!chatId) {
+      console.warn('No chatID found');
       return;
     }
+
+    this.chatService.joinChat(chatId);
 
     this.subscription.add(
       this.chatService.getMessages().subscribe((messages) => {
         this.messages = messages;
+        if (messages.length === 0) {
+          this.messages.push({
+            text: 'Welcome to Customer Support! How can I help you today?',
+            sender: 'agent',
+            chatId: chatId,
+            timestamp: new Date()
+          });
+        }
       })
     );
 
@@ -62,10 +79,11 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
     );
 
     this.subscription.add(
-      this.chatService.getAgent().subscribe((agent) => (this.agent = agent))
+      this.chatService.getAgent().subscribe((agent) => {
+        this.agent = agent;
+        this.isLoading = false;
+      })
     );
-
-    this.chatService.checkAgents();
   }
 
   ngAfterViewChecked() {
@@ -74,8 +92,9 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
 
   sendMessage() {
     if (this.message.trim()) {
-      this.chatService.sendMessage(this.message);
+      const messageToSend = this.message;
       this.message = '';
+      this.chatService.sendMessage(messageToSend);
       this.chatService.stopTyping();
     }
   }
@@ -100,85 +119,3 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
     }
   }
 }
-
-// import { Component, signal, effect, ViewChild, ElementRef } from '@angular/core';
-// import { CommonModule } from '@angular/common';
-// import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-// import { faPaperPlane, faUserCircle } from '@fortawesome/free-solid-svg-icons';
-// import { FormsModule } from '@angular/forms';
-// import { trigger, transition, style, animate } from '@angular/animations';
-
-// @Component({
-//   selector: 'app-chat',
-//   standalone: true,
-//   imports: [CommonModule, FontAwesomeModule, FormsModule],
-//   templateUrl: './chat.component.html',
-//   styleUrls: ['./chat.component.css'],
-//   animations: [
-//     trigger('messageAnimation', [
-//       transition(':enter', [
-//         style({ opacity: 0, transform: 'translateY(10px)' }),
-//         animate('300ms ease-out', style({ opacity: 1, transform: 'translateY(0)' })),
-//       ]),
-//     ]),
-//   ],
-// })
-// export class ChatComponent {
-//   @ViewChild('chatBody') chatBody!: ElementRef;
-
-//   faSend = faPaperPlane;
-//   faUser = faUserCircle;
-
-//   messages = signal<{ text: string; sender: string }[]>([
-//     { text: 'Hello! How can I assist you?', sender: 'agent' },
-//     { text: 'Thanks for reaching out! How can I help?', sender: 'agent' }
-//   ]);
-//   message: string = "";
-//   agent = signal<{ name: string; avatar: string; id: number } | null>(null);
-//   isTyping = signal<boolean>(false);
-
-//   constructor() {
-//     effect(() => {
-//       if (this.messages().length && this.messages()[this.messages().length - 1].sender === 'customer') {
-//         this.isTyping.set(true);
-//         setTimeout(() => {
-//           this.messages.update((msgs) =>
-//             [...msgs ,{ text: 'Thanks for reaching out! How can I help?', sender: 'agent' }]
-//           );
-//           this.isTyping.set(false);
-//         }, 1500);
-//       }
-//     });
-//   }
-
-//   toggleAgent() {
-//     this.agent.set(
-//       this.agent() ? null : { name: 'John Doe', avatar: '', id: 1 }
-//     );
-//   }
-
-//   sendMessage() {
-//     if (this.message.trim()) {
-//       this.messages.update((msgs) => [
-//         ...msgs,
-//         { text: this.message, sender: 'customer' } // حدد المرسل
-//       ]);
-//       this.message = '';
-//     }
-
-//     this.scrollToBottom();
-//   }
-
-//   scrollToBottom() {
-//     setTimeout(() => {
-//       this.chatBody.nativeElement.scrollTop = this.chatBody.nativeElement.scrollHeight;
-//     }, 100);
-//   }
-
-//   receiveMessage(text: string) {
-//     this.messages.update((msgs) => [
-//       ...msgs,
-//       { text: text, sender: 'agent' }
-//     ]);
-//   }
-// }

@@ -2,92 +2,120 @@ import { Injectable } from '@angular/core';
 import { io, Socket } from 'socket.io-client';
 import { BehaviorSubject } from 'rxjs';
 
+interface Message {
+  text: string;
+  sender: 'customer' | 'agent';
+  chatId: string;
+  timestamp?: Date;
+}
+
 @Injectable({ providedIn: 'root' })
 export class ChatService {
   private socket: Socket;
-  private messages$ = new BehaviorSubject<any[]>([]);
+  private messages$ = new BehaviorSubject<Message[]>([]);
   private isTyping$ = new BehaviorSubject<boolean>(false);
   private agent$ = new BehaviorSubject<any | null>(null);
-  private customerId: string | null = null;
+  private chatId: string | null = null;
 
   constructor() {
-    this.customerId = localStorage.getItem('userId');
+    this.socket = io('http://localhost:3000', {
+      autoConnect: true,
+      transports: ['websocket', 'polling']
+    });
 
-    this.socket = io('http://localhost:3000', { autoConnect: true });
-
-    if (this.customerId) {
-      this.socket.emit('join', { customerId: this.customerId });
-    }
-
-    this.listenForMessages();
-  }
-
-  private listenForMessages() {
     this.socket.on('connect', () => {
       console.log('Connected to socket server');
-    });
-
-    this.socket.on('messageSent', (msg) => {
-      if (msg.customerId === this.customerId) {
-        const currentMessages = this.messages$.getValue();
-        if (
-          !currentMessages.some(
-            (m) => m.text === msg.text && m.sender === msg.sender
-          )
-        ) {
-          this.messages$.next([...currentMessages, msg]);
-        }
-      }
-    });
-
-    this.socket.on('typingStarted', (data) => {
-      if (data.customerId === this.customerId) {
-        this.isTyping$.next(true);
-      }
-    });
-
-    this.socket.on('typingStopped', (data) => {
-      if (data.customerId === this.customerId) {
-        this.isTyping$.next(false);
-      }
-    });
-
-    this.socket.on('agentsAvailable', (availableAgents) => {
-      this.agent$.next(availableAgents.length > 0 ? availableAgents[0] : null);
     });
 
     this.socket.on('disconnect', () => {
       console.log('Disconnected from socket server');
     });
+
+    this.socket.on('error', (error) => {
+      console.error('Socket error:', error);
+    });
   }
 
-  checkAgents() {
-    this.socket.emit('checkAgents');
+  joinChat(chatId: string) {
+    this.chatId = chatId;
+    if (this.socket.connected) {
+      this.socket.emit('joinChat', { chatId: this.chatId, userType: 'customer' });
+      this.listenForMessages();
+    } else {
+      this.socket.once('connect', () => {
+        this.socket.emit('joinChat', { chatId: this.chatId, userType: 'customer' });
+        this.listenForMessages();
+      });
+    }
+  }
+
+  private listenForMessages() {
+    this.socket.on('messageSent', ({ chatId, message }) => {
+      if (chatId === this.chatId) {
+        const currentMessages = this.messages$.getValue();
+        const newMessage: Message = {
+          text: message,
+          sender: 'agent',
+          chatId: chatId,
+          timestamp: new Date()
+        };
+        if (
+          !currentMessages.some(
+            (m) => m.text === message && m.sender === 'agent'
+          )
+        ) {
+          this.messages$.next([...currentMessages, newMessage]);
+        }
+      }
+    });
+
+    this.socket.on('messageDelivered', ({ chatId, message }) => {
+      if (chatId === this.chatId) {
+        const currentMessages = this.messages$.getValue();
+        const newMessage: Message = {
+          text: message,
+          sender: 'customer',
+          chatId: chatId,
+          timestamp: new Date()
+        };
+        if (
+          !currentMessages.some(
+            (m) => m.text === message && m.sender === 'customer'
+          )
+        ) {
+          this.messages$.next([...currentMessages, newMessage]);
+        }
+      }
+    });
+
+    this.socket.on('typingStarted', () => {
+      this.isTyping$.next(true);
+    });
+
+    this.socket.on('typingStopped', () => {
+      this.isTyping$.next(false);
+    });
   }
 
   sendMessage(message: string) {
-    if (message.trim() && this.customerId) {
-      const msg = {
-        text: message,
-        sender: 'customer',
-        customerId: this.customerId,
-        // timestamp: new Date().toISOString(),
+    if (message.trim() && this.chatId && this.socket.connected) {
+      const messageData = {
+        chatId: this.chatId,
+        message: message,
       };
-      this.socket.emit('sendMessage', msg);
-      const currentMessages = this.messages$.getValue();
-      this.messages$.next([...currentMessages, msg]);
+      this.socket.emit('sendMessage', messageData);
     }
   }
 
   notifyTyping() {
-    if (this.customerId) {
-      this.socket.emit('startTyping', { customerId: this.customerId });
+    if (this.chatId && this.socket.connected) {
+      this.socket.emit('startTyping', this.chatId);
     }
   }
 
   stopTyping() {
-    if (this.customerId) {
-      this.socket.emit('stopTyping', { customerId: this.customerId });
+    if (this.chatId && this.socket.connected) {
+      this.socket.emit('stopTyping', this.chatId);
     }
   }
 
@@ -103,75 +131,3 @@ export class ChatService {
     return this.agent$.asObservable();
   }
 }
-
-
-// import { Injectable } from '@angular/core';
-// import { io, Socket } from 'socket.io-client';
-// import { BehaviorSubject } from 'rxjs';
-
-// @Injectable({ providedIn: 'root' })
-// export class ChatService {
-//   private socket: Socket;
-//   private messages$ = new BehaviorSubject<any[]>([
-//     { text: 'Hello! How can I help you?', sender: 'agent', customerId: '123' },
-//     { text: 'I have an issue with my order.', sender: 'customer', customerId: '123' }
-//   ]);
-//   private isTyping$ = new BehaviorSubject<boolean>(false);
-//   private agent$ = new BehaviorSubject<any | null>({ name: 'John Doe', avatar: 'https://via.placeholder.com/50' });
-//   private customerId: string | null = null;
-
-//   constructor() {
-//     this.socket = io('http://localhost:5000');
-//   }
-
-//   setCustomerId(id: string) {
-//     this.customerId = id;
-//   }
-
-//   private listenForMessages() {
-//     this.socket.on('receiveMessage', (msg) => {
-//       if (msg.customerId === this.customerId) {
-//         this.messages$.next([...this.messages$.getValue(), msg]);
-//       }
-//     });
-
-//     this.socket.on('userTyping', (data) => {
-//       if (data.customerId === this.customerId) {
-//         this.isTyping$.next(true);
-//         setTimeout(() => this.isTyping$.next(false), 1200);
-//       }
-//     });
-//   }
-
-//   private checkAgents() {
-//     this.socket.emit('checkAgents');
-//     this.socket.on('agentsAvailable', (availableAgents) => {
-//       this.agent$.next(availableAgents.length > 0 ? availableAgents[0] : null);
-//     });
-//   }
-
-//   sendMessage(message: string) {
-//     if (message.trim() && this.customerId) {
-//       const msg = { text: message, sender: 'customer', customerId: this.customerId };
-//       this.messages$.next([...this.messages$.getValue(), msg]);
-//     }
-//   }
-
-//   notifyTyping() {
-//     if (this.customerId) {
-//       // this.socket.emit('typing', { customerId: this.customerId });
-//     }
-//   }
-
-//   getMessages() {
-//     return this.messages$.asObservable();
-//   }
-
-//   getIsTyping() {
-//     return this.isTyping$.asObservable();
-//   }
-
-//   getAgent() {
-//     return this.agent$.asObservable();
-//   }
-// }

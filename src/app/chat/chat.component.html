@@ -1,7 +1,7 @@
 <div class="chat-container">
   <div class="chat-window">
     <div class="chat-header">
-      <img src="/logo.png" alt="" />
+      <img src="/logo.png" alt="Logo" />
       <div style="display: flex; align-items: center; gap: 7px;">
         <fa-icon *ngIf="!agent?.avatar" [icon]="faUser" size="2x"></fa-icon>
         <h2>{{ agent?.name || "Chat Support" }}</h2>
@@ -9,7 +9,10 @@
     </div>
 
     <div class="chat-body" #chatBody>
-      <div class="messages">
+      <div *ngIf="isLoading" class="loading">
+        Connecting to support...
+      </div>
+      <div *ngIf="!isLoading" class="messages">
         <div
           *ngFor="let msg of messages"
           class="message-container"
@@ -35,57 +38,15 @@
         [(ngModel)]="message"
         (keydown.enter)="sendMessage()"
         (input)="onTyping()"
-        placeholder="Type a message..."
+        placeholder="Type your message here..."
+        [disabled]="isLoading"
       />
-      <button (click)="sendMessage()" [disabled]="!message.trim()">
+      <button 
+        (click)="sendMessage()" 
+        [disabled]="!message.trim() || isLoading"
+      >
         <fa-icon [icon]="faSend"></fa-icon>
       </button>
     </div>
   </div>
 </div>
-
-<!-- 
-<div class="chat-container">
-  <div *ngIf="!agent(); else chatWindow" class="agent-check">
-    <span>Checking for available agents...</span>
-    <button (click)="toggleAgent()" class="toggle-btn">
-      Toggle Agent Availability
-    </button>
-  </div>
-
-  <ng-template #chatWindow>
-    <div class="chat-header">
-      <fa-icon *ngIf="!agent()?.avatar" [icon]="faUser" size="2x"></fa-icon>
-      <h2>{{ agent()?.name }}</h2>
-    </div>
-
-    <div class="chat-body" #chatBody>
-      <div class="messages">
-        <div
-          *ngFor="let msg of messages()"
-          class="message-container"
-          [ngClass]="{
-            right: msg.sender === 'customer',
-            left: msg.sender === 'agent'
-          }"
-          @messageAnimation
-        >
-          <div class="message">{{ msg.text }}</div>
-        </div>
-      </div>
-
-      <div *ngIf="isTyping()" class="typing">Typing...</div>
-    </div>
-
-    <div class="chat-input">
-      <input
-        [(ngModel)]="message"
-        (keydown.enter)="sendMessage()"
-        placeholder="Type a message..."
-      />
-      <button (click)="sendMessage()">
-        <fa-icon [icon]="faSend"></fa-icon>
-      </button>
-    </div>
-  </ng-template>
-</div> -->
