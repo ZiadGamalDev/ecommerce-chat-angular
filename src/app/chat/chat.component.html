@@ -14,19 +14,21 @@
       </div>
       <div *ngIf="!isLoading" class="messages">
         @if (messages.length > 0) {
-        <div *ngFor="let msg of messages" class="message-container" [ngClass]="{
-          'left': msg.senderId === userId,
-          'right': msg.senderId !== userId
-        }">
-          <div class="message">
-            <span class="message-text">{{ msg?.content }}</span>
-            <span class="timestamp" *ngIf="msg.timestamp">{{
-              msg.timestamp | date : "shortTime"
+          <div *ngFor="let msg of messages" class="message-container" [ngClass]="{
+            'left': msg.senderId === userId,
+            'right': msg.senderId !== userId
+          }">
+            <div class="message">
+              <span class="message-text">{{ msg.content }}</span>
+              <span class="timestamp" *ngIf="msg.createdAt">{{
+                msg.createdAt | date : "shortTime"
               }}</span>
+            </div>
           </div>
-        </div>
-        }@else {
-        <div>empty...</div>
+        } @else {
+          <div class="spinner-container">
+            <div class="spinner"></div>
+          </div>
         }
       </div>
 
@@ -34,8 +36,13 @@
     </div>
 
     <div class="chat-input">
-      <input [(ngModel)]="message" (keydown.enter)="sendMessage()" (input)="onTyping()"
-        placeholder="Type your message here..." [disabled]="isLoading" />
+      <input
+        [(ngModel)]="message"
+        (keydown.enter)="sendMessage()"
+        (input)="onTyping()"
+        placeholder="Type your message here..."
+        [disabled]="isLoading"
+      />
       <button (click)="sendMessage()" [disabled]="!message.trim() || isLoading">
         <fa-icon [icon]="faSend"></fa-icon>
       </button>

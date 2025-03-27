@@ -17,10 +17,13 @@ import { faPaperPlane, faUserCircle } from '@fortawesome/free-solid-svg-icons';
 import { Router } from '@angular/router';
 
 interface Message {
-  text: { content: string };
-  sender: 'customer' | 'agent';
+  id?: string;
   chatId: string;
-  timestamp?: Date;
+  senderId: string;
+  receiverId?: string;
+  content: string;
+  status?: string;
+  createdAt?: Date | string;
 }
 
 @Component({
@@ -31,12 +34,12 @@ interface Message {
   styleUrls: ['./chat.component.css'],
 })
 export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
-  messages: any = [];
+  messages: Message[] = [];
   message: string = '';
   agent: any = null;
   isTyping: boolean = false;
   isLoading: boolean = true;
-  userId: string | null = null; 
+  userId: string | null = null;
   private subscription = new Subscription();
 
   @ViewChild('chatBody') chatBody!: ElementRef;
@@ -53,9 +56,9 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
 
   ngOnInit() {
     this.userId = localStorage.getItem('userId');
-    console.log("Retrieved userId:", this.userId);
-    
-    const chatId = localStorage.getItem('chatID'); 
+    console.log('Retrieved userId:', this.userId);
+
+    const chatId = localStorage.getItem('chatID');
 
     if (!chatId) {
       console.warn('No chatID found');
@@ -70,23 +73,32 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
         this.ngZone.run(() => {
           console.log('Messages received in component:', messages);
           this.messages = messages.map((msg: any) => ({
-            ...msg,
-            text: typeof msg.text === 'string' ? { content: msg.text } : msg.text,
+            id: msg.id,
+            chatId: msg.chatId,
+            senderId: msg.senderId,
+            receiverId: msg.receiverId,
+            content: msg.content,
+            status: msg.status,
+            createdAt: msg.createdAt ? new Date(msg.createdAt) : new Date(),
           }));
         });
       })
     );
 
     this.subscription.add(
-      this.chatService
-        .getIsTyping()
-        .subscribe((typing) => (this.isTyping = typing))
+      this.chatService.getIsTyping().subscribe((typing) => {
+        this.ngZone.run(() => {
+          this.isTyping = typing;
+        });
+      })
     );
 
     this.subscription.add(
       this.chatService.getAgent().subscribe((agent) => {
-        this.agent = agent;
-        this.isLoading = false;
+        this.ngZone.run(() => {
+          this.agent = agent;
+          this.isLoading = false;
+        });
       })
     );
   }
@@ -98,6 +110,17 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
   sendMessage() {
     if (this.message.trim()) {
       const messageToSend = this.message;
+      const chatId = localStorage.getItem('chatID');
+
+      const newMessage: Message = {
+        chatId: chatId || '',
+        senderId: this.userId || '',
+        content: messageToSend,
+        status: 'sent',
+        createdAt: new Date(),
+      };
+      this.messages = [...this.messages, newMessage];
+
       this.message = '';
       this.chatService.sendMessage(messageToSend);
       this.chatService.stopTyping();

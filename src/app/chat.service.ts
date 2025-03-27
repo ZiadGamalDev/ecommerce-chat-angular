@@ -5,22 +5,22 @@ import { ActivatedRoute } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 
 interface Message {
-  text: string;
-  sender: 'customer' | 'agent';
+  id?: string;
   chatId: string;
-  timestamp?: Date;
+  senderId: string;
+  receiverId?: string;
+  content: string;
+  status?: string;
+  createdAt?: Date | string;
 }
 
 @Injectable({ providedIn: 'root' })
 export class ChatService {
   private socket: Socket;
-  private messages$ = new BehaviorSubject<any>([]);
+  private messages$ = new BehaviorSubject<Message[]>([]);
   private isTyping$ = new BehaviorSubject<boolean>(false);
   private agent$ = new BehaviorSubject<any | null>(null);
   private chatId: string | null = null;
-
-  // const customerSupportBaseUrl = 'http://localhost:3000/'
-// const customerSupportBaseUrl = 'https://customer-support-rose.vercel.app/'
 
   constructor(private route: ActivatedRoute, private http: HttpClient) {
     this.route.queryParamMap.subscribe((queryParams) => {
@@ -29,6 +29,7 @@ export class ChatService {
       localStorage.setItem('chatID', chatID || 'test');
       console.log('chatID:', chatID);
       console.log('token:', queryParams.get('token'));
+      localStorage.setItem('token', queryParams.get('token') || '');
     });
 
     this.socket = io('http://localhost:3000', {
@@ -54,9 +55,9 @@ export class ChatService {
     const token = localStorage.getItem('token');
 
     const headers = {
-      'Authorization': `Bearer ${token}`
+      Authorization: `Bearer ${token}`,
     };
-  
+
     this.http.get<Message[]>(url, { headers }).subscribe(
       (messages) => {
         console.log('Received messages from BE:', messages);
@@ -67,11 +68,11 @@ export class ChatService {
       }
     );
   }
-  
+
   joinChat(chatId: string) {
     this.chatId = chatId;
     console.log('Attempting to join chat with ID:', this.chatId);
-  
+
     if (this.socket.connected) {
       console.log('Socket is already connected');
       this.socket.emit('joinChat', {
@@ -79,6 +80,7 @@ export class ChatService {
         userType: 'customer',
       });
       this.listenForMessages();
+      this.getMessagesFromBE(chatId);
     } else {
       console.log('Waiting for socket connection...');
       this.socket.once('connect', () => {
@@ -88,41 +90,52 @@ export class ChatService {
           userType: 'customer',
         });
         this.listenForMessages();
+        this.getMessagesFromBE(chatId);
       });
     }
   }
 
   private listenForMessages() {
-    this.socket.on('messageSent', ({ chatId, message }) => {
+    this.socket.on('messageReceived', ({ message }) => {
       console.log('Message received from server:', message);
-      if (chatId === this.chatId) {
+      if (message.chatId === this.chatId) {
         const currentMessages = this.messages$.getValue();
         const newMessage: Message = {
-          text: message,
-          sender: 'agent',
-          chatId: chatId,
-          timestamp: new Date(),
+          id: message._id || message.id,
+          chatId: message.chatId,
+          senderId: message.senderId,
+          receiverId: message.receiverId,
+          content: message.content,
+          status: message.status,
+          createdAt: message.createdAt ? new Date(message.createdAt) : new Date(),
         };
-
-        this.messages$.next([...currentMessages, newMessage]);
+        if (!currentMessages.some((msg) => msg.id === newMessage.id)) {
+          this.messages$.next([...currentMessages, newMessage]);
+        }
       }
     });
 
-    this.socket.on('messageDelivered', ({ chatId, message }) => {
-      if (chatId === this.chatId) {
+    this.socket.on('messageDelivered', ({ message }) => {
+      console.log('Message delivered from server:', message);
+      if (message.chatId === this.chatId) {
         const currentMessages = this.messages$.getValue();
-        console.log(currentMessages);
-        console.log(message);
-        const newMessage: Message = {
-          text: message,
-          sender: 'customer',
-          chatId: chatId,
-          timestamp: new Date(),
+        const deliveredMessage: Message = {
+          id: message._id || message.id,
+          chatId: message.chatId,
+          senderId: message.senderId,
+          receiverId: message.receiverId,
+          content: message.content,
+          status: message.status,
+          createdAt: message.createdAt ? new Date(message.createdAt) : new Date(),
         };
-
-        this.messages$.next([...currentMessages, newMessage]);
-
-        console.log(this.messages$.getValue());
+        const updatedMessages = currentMessages.map((msg) =>
+          msg.createdAt === deliveredMessage.createdAt && !msg.id ? deliveredMessage : msg
+        );
+        if (!updatedMessages.some((msg) => msg.id === deliveredMessage.id)) {
+          this.messages$.next([...updatedMessages, deliveredMessage]);
+        } else {
+          this.messages$.next(updatedMessages);
+        }
       }
     });
 
@@ -157,15 +170,15 @@ export class ChatService {
     }
   }
 
-  getMessages() {
+  getMessages(): Observable<Message[]> {
     return this.messages$.asObservable();
   }
 
-  getIsTyping() {
+  getIsTyping(): Observable<boolean> {
     return this.isTyping$.asObservable();
   }
 
-  getAgent() {
+  getAgent(): Observable<any> {
     return this.agent$.asObservable();
   }
 }
