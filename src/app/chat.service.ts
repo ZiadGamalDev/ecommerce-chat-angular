@@ -153,6 +153,7 @@ export class ChatService {
       const messageData = {
         chatId: this.chatId,
         message: message,
+        userType: "customer"
       };
       this.socket.emit('sendMessage', messageData);
     }
