@@ -19,6 +19,9 @@ export class ChatService {
   private agent$ = new BehaviorSubject<any | null>(null);
   private chatId: string | null = null;
 
+  // const customerSupportBaseUrl = 'http://localhost:3000/'
+// const customerSupportBaseUrl = 'https://customer-support-rose.vercel.app/'
+
   constructor(private route: ActivatedRoute, private http: HttpClient) {
     this.route.queryParamMap.subscribe((queryParams) => {
       const chatID = queryParams.get('chatId');
@@ -47,9 +50,14 @@ export class ChatService {
   }
 
   getMessagesFromBE(chatId: string): void {
-    const url = `http://localhost:3000/messages/${chatId}`;
+    const url = `http://localhost:3000/messages/customer/${chatId}`;
+    const token = localStorage.getItem('token');
+
+    const headers = {
+      'Authorization': `Bearer ${token}`
+    };
   
-    this.http.get<Message[]>(url).subscribe(
+    this.http.get<Message[]>(url, { headers }).subscribe(
       (messages) => {
         console.log('Received messages from BE:', messages);
         this.messages$.next(messages);
