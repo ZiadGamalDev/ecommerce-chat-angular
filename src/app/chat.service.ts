@@ -30,6 +30,7 @@ export class ChatService {
       console.log('chatID:', chatID);
       console.log('token:', queryParams.get('token'));
       localStorage.setItem('token', queryParams.get('token') || '');
+      localStorage.setItem('userId', queryParams.get('userId') || '');
     });
 
     this.socket = io('http://localhost:3000', {
@@ -153,7 +154,6 @@ export class ChatService {
       const messageData = {
         chatId: this.chatId,
         message: message,
-        // userType: "customer"
       };
       this.socket.emit('sendMessage', messageData);
     }
