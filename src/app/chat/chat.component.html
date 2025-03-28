@@ -14,10 +14,10 @@
       </div>
       <div *ngIf="!isLoading" class="messages">
         @if (messages.length > 0) {
-          <div *ngFor="let msg of messages" class="message-container" [ngClass]="{
-            'left': msg.senderId === userId,
-            'right': msg.senderId !== userId
-          }">
+            <div *ngFor="let msg of messages" class="message-container" [ngClass]="{
+            'left': msg.senderId !== userId,
+            'right': msg.senderId === userId
+            }">
             <div class="message">
               <span class="message-text">{{ msg.content }}</span>
               <span class="timestamp" *ngIf="msg.createdAt">{{
