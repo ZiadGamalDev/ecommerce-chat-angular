@@ -142,8 +142,17 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
 
   private scrollToBottom(): void {
     if (this.chatBody) {
-      this.chatBody.nativeElement.scrollTop =
-        this.chatBody.nativeElement.scrollHeight;
+      const element = this.chatBody.nativeElement;
+      const shouldAutoScroll = element.scrollHeight - element.scrollTop - element.clientHeight < 100;
+      
+      if (shouldAutoScroll) {
+        requestAnimationFrame(() => {
+          element.scrollTo({
+            top: element.scrollHeight,
+            behavior: 'smooth'
+          });
+        });
+      }
     }
   }
 }
