@@ -4,11 +4,17 @@ import { BehaviorSubject, Observable } from 'rxjs';
 import { ActivatedRoute } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 
+interface UserRef {
+  _id: string;
+  name: string;
+  email: string;
+}
+
 interface Message {
   id?: string;
   chatId: string;
-  senderId: string;
-  receiverId?: string;
+  senderId: string | UserRef | null;
+  receiverId?: string | UserRef | null;
   content: string;
   status?: string;
   createdAt?: Date | string;
@@ -104,8 +110,8 @@ export class ChatService {
         const newMessage: Message = {
           id: message._id || message.id,
           chatId: message.chatId,
-          senderId: message.senderId,
-          receiverId: message.receiverId,
+          senderId: message.senderId?._id || message.senderId || null,
+          receiverId: message.receiverId?._id || message.receiverId || null,
           content: message.content,
           status: message.status,
           createdAt: message.createdAt ? new Date(message.createdAt) : new Date(),
@@ -123,12 +129,13 @@ export class ChatService {
         const deliveredMessage: Message = {
           id: message._id || message.id,
           chatId: message.chatId,
-          senderId: message.senderId,
-          receiverId: message.receiverId,
+          senderId: message.senderId?._id || message.senderId || null,
+          receiverId: message.receiverId?._id || message.receiverId || null,
           content: message.content,
           status: message.status,
           createdAt: message.createdAt ? new Date(message.createdAt) : new Date(),
         };
+        
         const updatedMessages = currentMessages.map((msg) =>
           msg.createdAt === deliveredMessage.createdAt && !msg.id ? deliveredMessage : msg
         );

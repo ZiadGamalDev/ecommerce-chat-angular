@@ -2,33 +2,35 @@
   <div class="chat-window">
     <div class="chat-header">
       <img src="/logo.png" alt="Logo" />
-      <div style="display: flex; align-items: center; gap: 7px;">
+      <div style="display: flex; align-items: center; gap: 7px">
         <fa-icon [icon]="faUser" size="2x"></fa-icon>
         <h2>Chat Support</h2>
       </div>
     </div>
 
     <div class="chat-body" #chatBody>
-      <div *ngIf="isLoading" class="loading">
-        Connecting to support...
-      </div>
+      <div *ngIf="isLoading" class="loading">Connecting to support...</div>
       <div *ngIf="!isLoading" class="messages">
         @if (messages.length > 0) {
-            <div *ngFor="let msg of messages" class="message-container" [ngClass]="{
-            'left': msg.senderId !== userId,
-            'right': msg.senderId === userId
-            }">
-            <div class="message">
-              <span class="message-text">{{ msg.content }}</span>
-              <span class="timestamp" *ngIf="msg.createdAt">{{
-                msg.createdAt | date : "shortTime"
-              }}</span>
-            </div>
+        <div
+          *ngFor="let msg of messages"
+          class="message-container"
+          [ngClass]="{
+            'right': isMyMessage(msg),
+            'left': !isMyMessage(msg)
+          }"
+        >
+          <div class="message">
+            <span class="message-text">{{ msg.content }}</span>
+            <span class="timestamp" *ngIf="msg.createdAt">{{
+              msg.createdAt | date : "shortTime"
+            }}</span>
           </div>
+        </div>
         } @else {
-          <div class="spinner-container">
-            <div class="spinner"></div>
-          </div>
+        <div class="spinner-container">
+          <div class="spinner"></div>
+        </div>
         }
       </div>
 

@@ -16,11 +16,17 @@ import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { faPaperPlane, faUserCircle } from '@fortawesome/free-solid-svg-icons';
 import { Router } from '@angular/router';
 
+interface UserRef {
+  _id: string;
+  name: string;
+  email: string;
+}
+
 interface Message {
   id?: string;
   chatId: string;
-  senderId: string;
-  receiverId?: string;
+  senderId: string | UserRef | null;
+  receiverId?: string | UserRef | null;
   content: string;
   status?: string;
   createdAt?: Date | string;
@@ -75,8 +81,8 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
           this.messages = messages.map((msg: any) => ({
             id: msg.id,
             chatId: msg.chatId,
-            senderId: msg.senderId,
-            receiverId: msg.receiverId,
+            senderId: msg.senderId || null,
+            receiverId: msg.receiverId || null,
             content: msg.content,
             status: msg.status,
             createdAt: msg.createdAt ? new Date(msg.createdAt) : new Date(),
@@ -140,16 +146,37 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
     this.chatService.stopTyping();
   }
 
+  isMyMessage(message: Message): boolean {
+    const userId = this.userId;
+
+    const sender =
+      typeof message.senderId === 'string'
+        ? message.senderId
+        : message.senderId?._id;
+
+    const receiver =
+      typeof message.receiverId === 'string'
+        ? message.receiverId
+        : message.receiverId?._id;
+
+    if (sender === userId) return true;
+
+    if (!sender && receiver !== userId) return true;
+
+    return false;
+  }
+
   private scrollToBottom(): void {
     if (this.chatBody) {
       const element = this.chatBody.nativeElement;
-      const shouldAutoScroll = element.scrollHeight - element.scrollTop - element.clientHeight < 100;
-      
+      const shouldAutoScroll =
+        element.scrollHeight - element.scrollTop - element.clientHeight < 100;
+
       if (shouldAutoScroll) {
         requestAnimationFrame(() => {
           element.scrollTo({
             top: element.scrollHeight,
-            behavior: 'smooth'
+            behavior: 'smooth',
           });
         });
       }
