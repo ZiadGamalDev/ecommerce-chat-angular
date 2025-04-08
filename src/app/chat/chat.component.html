@@ -11,7 +11,6 @@
     <div class="chat-body" #chatBody>
       <div *ngIf="isLoading" class="loading">Connecting to support...</div>
       <div *ngIf="!isLoading" class="messages">
-        @if (messages.length > 0) {
         <div
           *ngFor="let msg of messages"
           class="message-container"
@@ -27,11 +26,6 @@
             }}</span>
           </div>
         </div>
-        } @else {
-        <div class="spinner-container">
-          <div class="spinner"></div>
-        </div>
-        }
       </div>
 
       <div *ngIf="isTyping" class="typing">Typing...</div>

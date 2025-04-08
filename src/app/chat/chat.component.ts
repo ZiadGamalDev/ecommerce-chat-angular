@@ -79,13 +79,15 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
         this.ngZone.run(() => {
           console.log('Messages received in component:', messages);
           this.messages = messages.map((msg: any) => ({
-            id: msg.id,
-            chatId: msg.chatId,
-            senderId: msg.senderId || null,
-            receiverId: msg.receiverId || null,
-            content: msg.content,
-            status: msg.status,
-            createdAt: msg.createdAt ? new Date(msg.createdAt) : new Date(),
+            id: msg._id || msg.id,
+          chatId: msg.chatId,
+          senderId: msg.senderId?._id || msg.senderId || null,
+          receiverId: msg.receiverId?._id || msg.receiverId || null,
+          content: msg.content,
+          status: msg.status,
+          createdAt: msg.createdAt
+            ? new Date(msg.createdAt)
+            : new Date(),
           }));
         });
       })

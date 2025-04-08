@@ -114,7 +114,9 @@ export class ChatService {
           receiverId: message.receiverId?._id || message.receiverId || null,
           content: message.content,
           status: message.status,
-          createdAt: message.createdAt ? new Date(message.createdAt) : new Date(),
+          createdAt: message.createdAt
+            ? new Date(message.createdAt)
+            : new Date(),
         };
         if (!currentMessages.some((msg) => msg.id === newMessage.id)) {
           this.messages$.next([...currentMessages, newMessage]);
@@ -133,11 +135,16 @@ export class ChatService {
           receiverId: message.receiverId?._id || message.receiverId || null,
           content: message.content,
           status: message.status,
-          createdAt: message.createdAt ? new Date(message.createdAt) : new Date(),
+          createdAt: message.createdAt
+            ? new Date(message.createdAt)
+            : new Date(),
         };
-        
+
         const updatedMessages = currentMessages.map((msg) =>
-          msg.createdAt === deliveredMessage.createdAt && !msg.id ? deliveredMessage : msg
+          msg.createdAt === deliveredMessage.createdAt && !msg.id
+            ? deliveredMessage
+            : msg
+
         );
         if (!updatedMessages.some((msg) => msg.id === deliveredMessage.id)) {
           this.messages$.next([...updatedMessages, deliveredMessage]);
