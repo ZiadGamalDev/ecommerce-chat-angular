@@ -3,6 +3,7 @@ import { io, Socket } from 'socket.io-client';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { ActivatedRoute } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
+import { environment } from '../environments/environment';
 
 interface UserRef {
   _id: string;
@@ -39,7 +40,7 @@ export class ChatService {
       localStorage.setItem('userId', queryParams.get('userId') || '');
     });
 
-    this.socket = io('http://localhost:3000', {
+    this.socket = io(environment.socketUrl, {
       autoConnect: true,
       transports: ['websocket', 'polling'],
     });
@@ -58,7 +59,7 @@ export class ChatService {
   }
 
   getMessagesFromBE(chatId: string): void {
-    const url = `http://localhost:3000/messages/customer/${chatId}`;
+    const url = `${environment.apiUrl}/messages/customer/${chatId}`;
     const token = localStorage.getItem('token');
 
     const headers = {
