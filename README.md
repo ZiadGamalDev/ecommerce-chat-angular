@@ -1,59 +1,70 @@
-# ClientChat
+# E-Commerce Live Chat (Angular)
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 19.2.3.
+This is a minimal **Angular** app designed to simulate the customer side of a **live chat system**. Customers can open the chat interface and communicate in real-time with available support agents using **Socket.IO**.
 
-## Development server
+This app is **integrated with the full customer support backend** and is fully dynamic — you don't need to register the customer beforehand.
 
-To start a local development server, run:
+---
 
-```bash
-ng serve
-```
+## 💬 Features
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+- 🔐 Chat initiated without login (anonymous or via user ID)
+- 💬 Real-time messaging via Socket.IO
+- 📶 Typing indicator for customers and agents
+- 🚀 Automatically assigns to an available agent
+- 🧠 Smart behavior: If agents are busy/away, the chat is queued
 
-## Code scaffolding
+---
 
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
+## 🔗 Real-time Flow
 
-```bash
-ng generate component component-name
-```
+Once a customer opens the chat and sends a message:
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+1. The backend checks for available agents.
+2. If one is available, the chat is assigned instantly.
+3. If no agents are available, chat is marked as **new** and queued.
+4. Customer gets notified when agent responds.
 
-```bash
-ng generate --help
-```
+---
 
-## Building
+## 🚀 Getting Started
 
-To build the project run:
+1. Clone the repo:
+   ```bash
+   git clone https://github.com/ZiadGamalDev/ecommerce-chat-angular.git
+   ```
 
-```bash
-ng build
-```
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
 
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
+3. Update `src/environments/environment.ts`:
+   ```ts
+   export const environment = {
+     production: false,
+     socketUrl: 'http://localhost:5000',
+    socketUrl: 'http://localhost:3000'
+   };
+   ```
 
-## Running unit tests
+4. Run the app:
+   ```bash
+   ng serve
+   ```
 
-To execute unit tests with the [Karma](https://karma-runner.github.io) test runner, use the following command:
+---
 
-```bash
-ng test
-```
+## 🌍 Connect to the Backend
 
-## Running end-to-end tests
+For this to work, make sure to run the backend from:
+👉 [Customer Support Node Backend](https://github.com/ZiadGamalDev/customer-support-node)
 
-For end-to-end (e2e) testing, run:
+Or you can
+👉 [View Root Repository](https://github.com/ZiadGamalDev/customer-support-system)
 
-```bash
-ng e2e
-```
+---
 
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
+## 📄 License
 
-## Additional Resources
-
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+MIT – plug it into your own e-commerce systems or build on top of it.
