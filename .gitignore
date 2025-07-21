@@ -37,6 +37,14 @@ yarn-error.log
 testem.log
 /typings
 
+# Vercel environment files
+.env.vercel
+.env.production.vercel
+
+# Notes folder
+.notes
+
 # System files
 .DS_Store
 Thumbs.db
+.vercel
