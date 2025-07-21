@@ -4,6 +4,11 @@ This is a minimal **Angular** app designed to simulate the customer side of a **
 
 This app is **integrated with the full customer support backend** and is fully dynamic — you don't need to register the customer beforehand.
 
+## 🌐 Live Demo
+
+- **Production App:** https://ecommerce-chat-angular.vercel.app/
+- **Backend API:** https://customer-support-node.dinamo-app.com/
+
 ---
 
 ## 💬 Features
@@ -39,12 +44,21 @@ Once a customer opens the chat and sends a message:
    npm install
    ```
 
-3. Update `src/environments/environment.ts`:
+3. Update `src/environments/environment.ts` for development:
    ```ts
    export const environment = {
      production: false,
-     socketUrl: 'http://localhost:5000',
-    socketUrl: 'http://localhost:3000'
+     apiUrl: 'http://localhost:3000',
+     socketUrl: 'http://localhost:3000'
+   };
+   ```
+
+   Or use production environment in `src/environments/environment.prod.ts`:
+   ```ts
+   export const environment = {
+     production: true,
+     apiUrl: 'https://customer-support-node.dinamo-app.com',
+     socketUrl: 'https://customer-support-node.dinamo-app.com'
    };
    ```
 
@@ -57,10 +71,13 @@ Once a customer opens the chat and sends a message:
 
 ## 🌍 Connect to the Backend
 
-For this to work, make sure to run the backend from:
+This chat app connects to the live backend API at:
+**https://customer-support-node.dinamo-app.com/**
+
+For local development, make sure to run the backend from:
 👉 [Customer Support Node Backend](https://github.com/ZiadGamalDev/customer-support-node)
 
-Or you can
+For the complete system overview:
 👉 [View Root Repository](https://github.com/ZiadGamalDev/customer-support-system)
 
 ---
