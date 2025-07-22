@@ -41,8 +41,18 @@ export class ChatService {
     });
 
     this.socket = io(environment.socketUrl, {
+      auth: {
+        token: localStorage.getItem('token') || '',
+      },
       autoConnect: true,
       transports: ['websocket', 'polling'],
+      forceNew: true,
+      timeout: 20000,
+      reconnection: true,
+      reconnectionAttempts: 5,
+      reconnectionDelay: 1000,
+      upgrade: true,
+      secure: environment.socketUrl.startsWith('https'),
     });
 
     this.socket.on('connect', () => {
