@@ -6,8 +6,9 @@ This app is **integrated with the full customer support backend** and is fully d
 
 ## 🌐 Live Demo
 
-- **Production App:** https://ecommerce-chat-angular.vercel.app/
-- **Backend API:** https://customer-support-api.ziadgamal.com/
+- **Production App:** https://ecommerce-chat.ziadgamal.com
+- **Backend API:** https://customer-support-api.ziadgamal.com
+- **Legacy Vercel:** https://ecommerce-chat-angular.vercel.app (redirects to new domain)
 
 ---
 
