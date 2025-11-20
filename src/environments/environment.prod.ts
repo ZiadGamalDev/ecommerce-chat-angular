@@ -1,5 +1,5 @@
 export const environment = {
   production: true,
-  apiUrl: 'https://customer-support-node.dinamo-app.com',
-  socketUrl: 'https://customer-support-node.dinamo-app.com'
+  apiUrl: 'https://customer-support-api.ziadgamal.com',
+  socketUrl: 'https://customer-support-api.ziadgamal.com'
 };

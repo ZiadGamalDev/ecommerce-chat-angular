@@ -7,7 +7,7 @@ This app is **integrated with the full customer support backend** and is fully d
 ## 🌐 Live Demo
 
 - **Production App:** https://ecommerce-chat-angular.vercel.app/
-- **Backend API:** https://customer-support-node.dinamo-app.com/
+- **Backend API:** https://customer-support-api.ziadgamal.com/
 
 ---
 
@@ -57,8 +57,8 @@ Once a customer opens the chat and sends a message:
    ```ts
    export const environment = {
      production: true,
-     apiUrl: 'https://customer-support-node.dinamo-app.com',
-     socketUrl: 'https://customer-support-node.dinamo-app.com'
+     apiUrl: 'https://customer-support-api.ziadgamal.com',
+     socketUrl: 'https://customer-support-api.ziadgamal.com'
    };
    ```
 
@@ -72,7 +72,7 @@ Once a customer opens the chat and sends a message:
 ## 🌍 Connect to the Backend
 
 This chat app connects to the live backend API at:
-**https://customer-support-node.dinamo-app.com/**
+**https://customer-support-api.ziadgamal.com/**
 
 For local development, make sure to run the backend from:
 👉 [Customer Support Node Backend](https://github.com/ZiadGamalDev/customer-support-node)
